@@ -1,4 +1,4 @@
-package Lib.Classe;
+package Client.Model;
 
 public class VerifCard {
     //Basé su l'ago de Luhn

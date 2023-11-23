@@ -1,8 +1,8 @@
 package Server.Infra;
 
-import Lib.Classe.ArticlePanier;
-import Lib.Classe.Facture;
-import Lib.Classe.VerifCard;
+import Client.Model.ArticlePanier;
+import Client.Model.Facture;
+import Client.Model.VerifCard;
 import Lib.Interface.IRequete;
 import Lib.Interface.IResponse;
 import Lib.Requete.*;

@@ -1,4 +1,4 @@
-package Lib.Classe;
+package Client.Model;
 
 import javafx.beans.property.SimpleFloatProperty;
 import javafx.beans.property.SimpleIntegerProperty;

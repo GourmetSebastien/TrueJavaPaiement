@@ -1,8 +1,8 @@
-package com.example.trueserverpaiement;
+package Client.controller;
 
 import Client.Model.Employe;
-import Lib.Classe.ArticlePanier;
-import Lib.Classe.Facture;
+import Client.Model.ArticlePanier;
+import Client.Model.Facture;
 import Lib.Requete.RequeteLogin;
 import Lib.Requete.RequeteLogout;
 import Lib.Response.ResponseLogin;
@@ -15,7 +15,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
-public class HelloController {
+public class EmpController {
     @FXML
     private TextField LoginField;
     @FXML
@@ -73,22 +73,19 @@ public class HelloController {
     void on_LoginClicked(){
         System.out.println("[Controller] click on login button");
 
-        String login = LoginField.getText();
-        String password = MDPField.getText();
-
-        if (login.isEmpty()) {
+        if (LoginField.getText().isEmpty()) {
             // Les champs de login ou de mot de passe sont vides
             Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setTitle("Attention");
             alert.setHeaderText("Champs vides");
-            if(password.isEmpty()){
+            if(MDPField.getText().isEmpty()){
                 alert.setContentText("Veuillez remplir les champs de login et de mot de passe.");
             }else {
                 alert.setContentText("Veuillez remplir le champs de login");
             }
             alert.showAndWait();
         } else {
-            if(password.isEmpty()){
+            if(MDPField.getText().isEmpty()){
                 Alert alert = new Alert(Alert.AlertType.WARNING);
                 alert.setTitle("Attention");
                 alert.setHeaderText("Champs vides");
@@ -106,8 +103,8 @@ public class HelloController {
                 if(response.isValide()){
                     System.out.println("[Controller] Connexion réussie");
                     EnableAll();
-                    employe.setLogin(login);
-                    employe.setPassword(password);
+                    employe.setLogin(LoginField.getText());
+                    employe.setPassword(MDPField.getText());
                     employe.isLogged = true;
 
 
@@ -164,4 +161,5 @@ public class HelloController {
         FactureTable.setDisable(true);
         ProductTable.setDisable(true);
     }
+
 }

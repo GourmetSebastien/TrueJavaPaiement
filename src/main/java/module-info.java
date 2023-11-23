@@ -8,4 +8,6 @@ module com.example.trueserverpaiement {
 
     opens com.example.trueserverpaiement to javafx.fxml;
     exports com.example.trueserverpaiement;
+    exports Client.controller;
+    opens Client.controller to javafx.fxml;
 }

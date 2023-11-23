@@ -1,6 +1,6 @@
 package Lib.Response;
 
-import Lib.Classe.ArticlePanier;
+import Client.Model.ArticlePanier;
 import Lib.Interface.IResponse;
 
 import java.util.List;

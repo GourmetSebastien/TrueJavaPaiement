@@ -1,6 +1,6 @@
 package Lib.Response;
 
-import Lib.Classe.Facture;
+import Client.Model.Facture;
 import Lib.Interface.IResponse;
 
 import java.util.List;
