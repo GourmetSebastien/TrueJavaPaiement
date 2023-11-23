@@ -39,7 +39,7 @@ public class VESPAP {
         String password = requete.getPassword();
         ResultSet res = null;
         try {
-            res = connexion.executeQuery("SELECT * FROM employes WHERE login = '" + login + "' AND password = '" + password + "'");
+            res = connexion.executeQuery("SELECT * FROM employes WHERE login_emp = '" + login + "' AND password_emp = '" + password + "'");
 
             if(!res.next()){
                 System.out.println("[VESPAP] Login ou MDP incorrect");

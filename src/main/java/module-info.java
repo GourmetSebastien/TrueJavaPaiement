@@ -7,7 +7,6 @@ module com.example.trueserverpaiement {
     requires java.sql;
 
     opens com.example.trueserverpaiement to javafx.fxml;
-    exports com.example.trueserverpaiement;
     exports Client.controller;
     opens Client.controller to javafx.fxml;
 }

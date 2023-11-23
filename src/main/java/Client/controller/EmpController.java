@@ -3,12 +3,17 @@ package Client.controller;
 import Client.Model.Employe;
 import Client.Model.ArticlePanier;
 import Client.Model.Facture;
+import Lib.Requete.RequeteGetFacture;
 import Lib.Requete.RequeteLogin;
 import Lib.Requete.RequeteLogout;
+import Lib.Response.ResponseGetFacture;
 import Lib.Response.ResponseLogin;
 import Lib.Response.ResponseLogout;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -50,24 +55,63 @@ public class EmpController {
     private TableColumn<ArticlePanier,Float> PrixUniColumn;
 
 
+    private ObservableList<Facture> ListeFacture;
+    private ObservableList<ArticlePanier> ListeArtcile;
     private  Employe employe;
     private  ObjectOutputStream oos;
     private  ObjectInputStream ois;
     private  Socket csocket;
+    private boolean socketCreated = false;
 
 
     @FXML
-    public void initialize(Employe emp,Socket csocket){
-        this.employe = emp;
-        this.csocket = csocket;
+    public void initialize(){
+        ListeFacture = FXCollections.observableArrayList();
+        ListeArtcile = FXCollections.observableArrayList();
 
-        try{
-            oos = new ObjectOutputStream(csocket.getOutputStream());
-            ois = new ObjectInputStream(csocket.getInputStream());
+        if(!socketCreated){
+            try{
+                this.csocket = new Socket("localhost",50000);
+                this.employe = new Employe();
 
+                IdFactureColumn.setCellValueFactory(new PropertyValueFactory("Id"));
+                DateColumn.setCellValueFactory(new PropertyValueFactory("date"));
+                MontantColumn.setCellValueFactory(new PropertyValueFactory("PrixTotal"));
+
+                FactureTable.setItems(ListeFacture);
+                ProductTable.setItems(ListeArtcile);
+
+                IntituleColumn.setCellValueFactory(new PropertyValueFactory("intitule"));
+                QuantiteColumn.setCellValueFactory(new PropertyValueFactory("quantite"));
+                PrixUniColumn.setCellValueFactory(new PropertyValueFactory("prixUnitaire"));
+
+                oos = new ObjectOutputStream(csocket.getOutputStream());
+                ois = new ObjectInputStream(csocket.getInputStream());
+
+            }catch (IOException e){
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    @FXML
+    public void shutdown() {
+        System.out.println("[Controller] SHUTDOWN Fenêtre Client fermée");
+
+        try {
+            if (socketCreated){
+                if(employe.isLogged){
+                    on_LogoutClicked();
+                }
+            }
+
+            oos.close();
+            ois.close();
+            csocket.close();
         }catch (IOException e){
             throw new RuntimeException(e);
         }
+        System.exit(0);
     }
     @FXML
     void on_LoginClicked(){
@@ -107,7 +151,6 @@ public class EmpController {
                     employe.setPassword(MDPField.getText());
                     employe.isLogged = true;
 
-
                 }else{
                     System.out.println("[Controller] Connexion échouée");
                 }
@@ -140,7 +183,17 @@ public class EmpController {
 
     @FXML
     public void on_ConsultClicked(){
+        System.out.println("[Controller] click on Consult button");
 
+        System.out.println("[Controller] Envoie Requete GetArticles");
+        RequeteGetFacture req = new RequeteGetFacture(Integer.parseInt(IDField.getText()));
+        try {
+            oos.writeObject(req);
+
+            ResponseGetFacture response = (ResponseGetFacture) ois.readObject();
+        }catch (IOException | ClassNotFoundException e){
+            throw new RuntimeException(e);
+        }
     }
 
     private void EnableAll(){
@@ -161,5 +214,4 @@ public class EmpController {
         FactureTable.setDisable(true);
         ProductTable.setDisable(true);
     }
-
 }
