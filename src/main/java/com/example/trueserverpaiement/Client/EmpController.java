@@ -76,6 +76,7 @@ public class EmpController {
                 this.csocket = new Socket("localhost",50000);
                 this.employe = new Employe();
                 System.out.println("[INITIALIZE] Socket connecté au Serveur");
+                socketCreated = true;
 
                 IdFactureColumn.setCellValueFactory(new PropertyValueFactory("Id"));
                 DateColumn.setCellValueFactory(new PropertyValueFactory("date"));
@@ -110,11 +111,15 @@ public class EmpController {
 
         try {
             if (socketCreated){
-                if(employe.isLogged){
-                    on_LogoutClicked();
-                }
+                on_LogoutClicked();
             }
 
+            if(oos != null){
+                oos.close();
+            }
+            if(ois != null){
+                ois.close();
+            }
             csocket.close();
         }catch (IOException e){
             throw new RuntimeException(e);
@@ -176,6 +181,10 @@ public class EmpController {
     public void on_LogoutClicked(){
         System.out.println("[on_LogoutClicked] click on logout button");
 
+        if(employe == null){
+            employe = new Employe("nobody", "none");
+        }
+
         RequeteLogout req = new RequeteLogout(employe.getLogin());
 
         try {
@@ -189,12 +198,7 @@ public class EmpController {
                 DisableAll();
                 LoginButton.setDisable(false);
                 employe.isLogged = false;
-            }
-            if(oos != null){
-                oos.close();
-            }
-            if(ois != null){
-                ois.close();
+                socketCreated = false;
             }
 
         }catch (IOException | ClassNotFoundException e){

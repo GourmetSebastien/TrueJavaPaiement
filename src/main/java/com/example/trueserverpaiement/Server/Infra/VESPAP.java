@@ -58,7 +58,7 @@ public class VESPAP {
 
     private static synchronized ResponseLogout TraiteRequeteLOGOUT(RequeteLogout requete, Socket clientSocket, ConnexionBD connexion) throws FinConnexionException {
         System.out.println("[VESPAP] Requete Logout reçue");
-        System.out.println("[VESPAP] Fermeture connexion de l'emploté : " + requete.getLogin());
+        System.out.println("[VESPAP] Fermeture connexion de l'employé : " + requete.getLogin());
         return new ResponseLogout(true);
     }
 
