@@ -70,7 +70,7 @@ public class EmpController {
         ListeFacture = FXCollections.observableArrayList();
         ListeArtcile = FXCollections.observableArrayList();
 
-        if(!socketCreated){
+        /*if(!socketCreated){
             try{
                 System.out.println("[INITIALIZE] Tentative de Connexion au Serveur");
                 this.csocket = new Socket("localhost",50000);
@@ -101,8 +101,20 @@ public class EmpController {
             }catch (IOException e){
                 System.out.println("[INITIALIZE] Connexion Error : " + e.getMessage());
                 throw new RuntimeException(e);
-            }
-        }
+            }*/
+            IdFactureColumn.setCellValueFactory(new PropertyValueFactory("Id"));
+            DateColumn.setCellValueFactory(new PropertyValueFactory("date"));
+            MontantColumn.setCellValueFactory(new PropertyValueFactory("PrixTotal"));
+
+            IntituleColumn.setCellValueFactory(new PropertyValueFactory("intitule"));
+            QuantiteColumn.setCellValueFactory(new PropertyValueFactory("quantite"));
+            PrixUniColumn.setCellValueFactory(new PropertyValueFactory("prixUnitaire"));
+
+            FactureTable.setItems(ListeFacture);
+            ProductTable.setItems(ListeArtcile);
+
+            System.out.println("[INITIALIZE] setItem()");
+
     }
 
     @FXML
@@ -110,7 +122,7 @@ public class EmpController {
         System.out.println("[Controller] SHUTDOWN Fenêtre fermée");
 
         try {
-            if (socketCreated){
+            if (employe.isLogged){
                 on_LogoutClicked();
             }
 
@@ -121,6 +133,7 @@ public class EmpController {
                 ois.close();
             }
             csocket.close();
+            socketCreated = false;
         }catch (IOException e){
             throw new RuntimeException(e);
         }
@@ -130,6 +143,20 @@ public class EmpController {
     @FXML
     void on_LoginClicked() throws IOException {
         System.out.println("[LOGIN_CLICKED] click on login button");
+
+        /******************************************************************/
+        System.out.println("[INITIALIZE] Tentative de Connexion au Serveur");
+        this.csocket = new Socket("localhost",50000);
+        this.employe = new Employe();
+        System.out.println("[INITIALIZE] Socket connecté au Serveur");
+        socketCreated = true;
+
+        oos = new ObjectOutputStream(csocket.getOutputStream());
+        oos.flush();
+        ois = new ObjectInputStream(csocket.getInputStream());
+        System.out.println("[INITIALIZE] ObjectSteam succes");
+        System.out.println("[INITIALIZE] Fin initialize");
+        /******************************************************************/
 
         if (LoginField.getText().isEmpty()) {
             // Les champs de login ou de mot de passe sont vides
@@ -172,6 +199,7 @@ public class EmpController {
                 }
 
             }catch (ClassNotFoundException | IOException e){
+                System.out.println("Erreur : " + e.getMessage());
                 throw new RuntimeException();
             }
         }
@@ -181,9 +209,9 @@ public class EmpController {
     public void on_LogoutClicked(){
         System.out.println("[on_LogoutClicked] click on logout button");
 
-        if(employe == null){
+        /*if(employe == null){
             employe = new Employe("nobody", "none");
-        }
+        }*/
 
         RequeteLogout req = new RequeteLogout(employe.getLogin());
 
@@ -198,7 +226,10 @@ public class EmpController {
                 DisableAll();
                 LoginButton.setDisable(false);
                 employe.isLogged = false;
+                csocket.close();
                 socketCreated = false;
+                oos.close();
+                ois.close();
             }
 
         }catch (IOException | ClassNotFoundException e){
@@ -237,6 +268,7 @@ public class EmpController {
         PayerButton.setDisable(false);
         FactureTable.setDisable(false);
         ProductTable.setDisable(false);
+        CBFieeld.setDisable(false);
     }
 
     private void DisableAll(){
@@ -246,5 +278,6 @@ public class EmpController {
         PayerButton.setDisable(true);
         FactureTable.setDisable(true);
         ProductTable.setDisable(true);
+        CBFieeld.setDisable(true);
     }
 }

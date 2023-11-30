@@ -64,12 +64,16 @@ public class ThredClientPool extends Thread{
                     System.out.println("[THCLPO] début boucle");
                     try {
                         IRequete requete = (IRequete) ois.readObject();
-                        System.out.println("[THCLPO] requete : " + requete.toString());
+                        System.out.println("[THCLPO] LECTURE de la requete");
                         IResponse response = VESPAP.TraitementRequete(requete,clientSocket,connexionBD);
                         oos.writeObject(response);
+                        System.out.println("[THCLPO] ECRITURE de la reponse");
                         if(response instanceof ResponseLogout){
-                            clientSocket.close();
+                            onContinue = false;
                             connexionBD.close();
+                            clientSocket.close();
+                            oos.close();
+                            ois.close();
                         }
                         // Reste du code
                     } catch (ClassNotFoundException | EOFException e) {

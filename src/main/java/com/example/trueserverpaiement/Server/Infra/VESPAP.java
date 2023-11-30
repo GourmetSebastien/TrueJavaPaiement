@@ -20,7 +20,6 @@ public class VESPAP {
         if (requete instanceof RequeteLogin) {
             return TraiteRequeteLOGIN((RequeteLogin) requete, clientSocket, connexion);
         } else if (requete instanceof RequeteLogout) {
-            System.out.println("[TraitementRequete] Reception RequeteLogout");
             return TraiteRequeteLOGOUT((RequeteLogout) requete, clientSocket, connexion);
         } else if (requete instanceof RequeteGetFacture) {
             return TraiteGetFacture((RequeteGetFacture) requete, connexion);
@@ -34,7 +33,7 @@ public class VESPAP {
     }
 
     private static synchronized ResponseLogin TraiteRequeteLOGIN(RequeteLogin requete, Socket clientSocket, ConnexionBD connexion) {
-        System.out.println("[VESPAP] Requete Login reçue");
+        System.out.println("[TRAIT_REQUETE_LOGIN] Requete Login reçue");
 
         String login = requete.getLogin();
         String password = requete.getPassword();
@@ -43,11 +42,11 @@ public class VESPAP {
             res = connexion.executeQuery("SELECT * FROM employes WHERE login_emp = '" + login + "' AND password_emp = '" + password + "'");
 
             if(!res.next()){
-                System.out.println("[VESPAP] Login ou MDP incorrect");
+                System.out.println("[TRAIT_REQUETE_LOGIN] Login ou MDP incorrect");
                 return new ResponseLogin(false,"Login ou mot de passe incorrect");
             }
             else{
-                System.out.println("[VESPAP] Login et MDP correct");
+                System.out.println("[TRAIT_REQUETE_LOGIN] Login et MDP correct");
                 return new ResponseLogin(true,"Login et mot de passe correct");
             }
         }
@@ -57,8 +56,7 @@ public class VESPAP {
     }
 
     private static synchronized ResponseLogout TraiteRequeteLOGOUT(RequeteLogout requete, Socket clientSocket, ConnexionBD connexion) throws FinConnexionException {
-        System.out.println("[VESPAP] Requete Logout reçue");
-        System.out.println("[VESPAP] Fermeture connexion de l'employé : " + requete.getLogin());
+        System.out.println("[TRAIT_REQUETE_LOGOUT] Requete Logout de l'employé : " + requete.getLogin() + " reçue");
         return new ResponseLogout(true);
     }
 
@@ -72,8 +70,9 @@ public class VESPAP {
             int nbRows = 0;
             List<Facture> factures =new ArrayList<>();
             while (resultSet.next()){
+                System.out.println("[GetFACTURE] Resultat : " + resultSet);
                 Facture facture = new Facture();
-                facture.setId(resultSet.getInt("idFacutre"));
+                facture.setId(resultSet.getInt("idFacture"));
                 facture.setDate(resultSet.getString("jour"));
                 facture.setPrixTotal(resultSet.getFloat("montant"));
                 facture.setPayer(resultSet.getInt("paye"));
