@@ -3,22 +3,21 @@ package com.example.trueserverpaiement.Client;
 import com.example.trueserverpaiement.Client.Model.Employe;
 import com.example.trueserverpaiement.Client.Model.ArticlePanier;
 import com.example.trueserverpaiement.Client.Model.Facture;
-import com.example.trueserverpaiement.Lib.Requete.RequeteGetFacture;
-import com.example.trueserverpaiement.Lib.Requete.RequeteLogin;
-import com.example.trueserverpaiement.Lib.Requete.RequeteLogout;
-import com.example.trueserverpaiement.Lib.Response.ResponseGetFacture;
-import com.example.trueserverpaiement.Lib.Response.ResponseLogin;
-import com.example.trueserverpaiement.Lib.Response.ResponseLogout;
+import com.example.trueserverpaiement.Lib.Requete.*;
+import com.example.trueserverpaiement.Lib.Response.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.MouseEvent;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.Date;
 
 public class EmpController {
     @FXML
@@ -54,6 +53,9 @@ public class EmpController {
     @FXML
     private TableColumn<ArticlePanier,Float> PrixUniColumn;
 
+    @FXML
+    private TextField NameTextField;
+
 
     private ObservableList<Facture> ListeFacture;
     private ObservableList<ArticlePanier> ListeArtcile;
@@ -63,6 +65,9 @@ public class EmpController {
     private  Socket csocket;
     private boolean socketCreated = false;
 
+    Facture temp;
+    Date lastClickTime;
+
 
     @FXML
     public void initialize(){
@@ -70,50 +75,18 @@ public class EmpController {
         ListeFacture = FXCollections.observableArrayList();
         ListeArtcile = FXCollections.observableArrayList();
 
-        /*if(!socketCreated){
-            try{
-                System.out.println("[INITIALIZE] Tentative de Connexion au Serveur");
-                this.csocket = new Socket("localhost",50000);
-                this.employe = new Employe();
-                System.out.println("[INITIALIZE] Socket connecté au Serveur");
-                socketCreated = true;
+        IdFactureColumn.setCellValueFactory(new PropertyValueFactory("Id"));
+        DateColumn.setCellValueFactory(new PropertyValueFactory("date"));
+        MontantColumn.setCellValueFactory(new PropertyValueFactory("PrixTotal"));
 
-                IdFactureColumn.setCellValueFactory(new PropertyValueFactory("Id"));
-                DateColumn.setCellValueFactory(new PropertyValueFactory("date"));
-                MontantColumn.setCellValueFactory(new PropertyValueFactory("PrixTotal"));
+        IntituleColumn.setCellValueFactory(new PropertyValueFactory("intitule"));
+        QuantiteColumn.setCellValueFactory(new PropertyValueFactory("quantite"));
+        PrixUniColumn.setCellValueFactory(new PropertyValueFactory("prixUnitaire"));
 
-                IntituleColumn.setCellValueFactory(new PropertyValueFactory("intitule"));
-                QuantiteColumn.setCellValueFactory(new PropertyValueFactory("quantite"));
-                PrixUniColumn.setCellValueFactory(new PropertyValueFactory("prixUnitaire"));
+        FactureTable.setItems(ListeFacture);
+        ProductTable.setItems(ListeArtcile);
 
-                FactureTable.setItems(ListeFacture);
-                ProductTable.setItems(ListeArtcile);
-
-                System.out.println("[INITIALIZE] setItem()");
-
-
-                oos = new ObjectOutputStream(csocket.getOutputStream());
-                oos.flush();
-                ois = new ObjectInputStream(csocket.getInputStream());
-                System.out.println("[INITIALIZE] ObjectSteam succes");
-                System.out.println("[INITIALIZE] Fin initialize");
-
-            }catch (IOException e){
-                System.out.println("[INITIALIZE] Connexion Error : " + e.getMessage());
-                throw new RuntimeException(e);
-            }*/
-            IdFactureColumn.setCellValueFactory(new PropertyValueFactory("Id"));
-            DateColumn.setCellValueFactory(new PropertyValueFactory("date"));
-            MontantColumn.setCellValueFactory(new PropertyValueFactory("PrixTotal"));
-
-            IntituleColumn.setCellValueFactory(new PropertyValueFactory("intitule"));
-            QuantiteColumn.setCellValueFactory(new PropertyValueFactory("quantite"));
-            PrixUniColumn.setCellValueFactory(new PropertyValueFactory("prixUnitaire"));
-
-            FactureTable.setItems(ListeFacture);
-            ProductTable.setItems(ListeArtcile);
-
-            System.out.println("[INITIALIZE] setItem()");
+        System.out.println("[INITIALIZE] setItem()");
 
     }
 
@@ -230,6 +203,11 @@ public class EmpController {
                 socketCreated = false;
                 oos.close();
                 ois.close();
+                ListeArtcile.clear();
+                ListeFacture.clear();
+                IDField.setText("");
+                LoginField.setText("");
+                MDPField.setText("");
             }
 
         }catch (IOException | ClassNotFoundException e){
@@ -241,18 +219,33 @@ public class EmpController {
     public void on_ConsultClicked(){
         System.out.println("[Controller] click on Consult button");
 
-        System.out.println("[Controller] Envoie Requete GetArticles");
+        if(ListeFacture.size() > 0){
+            ListeFacture.clear();
+            if(ListeArtcile.size() > 0){
+                ListeArtcile.clear();
+            }
+        }
+
+        System.out.println("[Controller] Envoie Requete GetFacture");
         RequeteGetFacture req = new RequeteGetFacture(Integer.parseInt(IDField.getText()));
         try {
             oos.writeObject(req);
 
             ResponseGetFacture response = (ResponseGetFacture) ois.readObject();
-            if(response.isFound() == false){
+            if(!response.isFound()){
                 Alert alert = new Alert(Alert.AlertType.WARNING);
                 alert.setTitle("Attention");
                 alert.setHeaderText("Pas de factures trouvée dans la base de données");
                 alert.setContentText("Vérifier les données du client");
                 alert.showAndWait();
+            } else {
+                System.out.println("[CONTROLLER] Copy response in ListeFacture");
+                System.out.println("[CONTROLLER] idFacture = " + response.getListFacture().get(0).getId());
+                for(int i = 0; i<response.getListFacture().size(); i++)
+                {
+                    ListeFacture.add(new Facture(response.getListFacture().get(i).getId(), response.getListFacture().get(i).getDate(), response.getListFacture().get(i).getPrixTotal(), response.getListFacture().get(i).getPayer()));
+                }
+
             }
 
         }catch (IOException | ClassNotFoundException e){
@@ -279,5 +272,86 @@ public class EmpController {
         FactureTable.setDisable(true);
         ProductTable.setDisable(true);
         CBFieeld.setDisable(true);
+    }
+
+    @FXML
+    void doubleClick(MouseEvent event) {
+        Facture row = FactureTable.getSelectionModel().getSelectedItem();
+        if (row == null) return;
+        if(row != temp){
+            temp = row;
+            lastClickTime = new Date();
+        } else if(row == temp) {
+            Date now = new Date();
+            long diff = now.getTime() - lastClickTime.getTime();
+            if (diff < 300){ //another click registered in 300 millis
+                System.out.println("[DOUBLE_CLICK] on row");
+
+                if(ListeArtcile.size() > 0){
+                    ListeArtcile.clear();
+                }
+
+                System.out.println("[DOUBLE_CLICK] Envoie Requete GetArticles");
+
+                RequeteGetArticles req = new RequeteGetArticles(ListeFacture.get(FactureTable.getSelectionModel().getSelectedIndex()).getId());
+                try {
+                    oos.writeObject(req);
+
+                    ResponseGetArticles response = (ResponseGetArticles) ois.readObject();
+                    if(!response.isFound()){
+                        Alert alert = new Alert(Alert.AlertType.WARNING);
+                        alert.setTitle("Attention");
+                        alert.setHeaderText("Pas d'article trouvée dans la base de données");
+                        alert.setContentText("Vérifier les données de la facture");
+                        alert.showAndWait();
+                    } else {
+                        System.out.println("[DOUBLE_CLICK] Copy response in ListeFacture");
+                        System.out.println("[DOUBLE_CLICK] idFacture = " + response.getListArticles().get(0).getId());
+                        for(int i = 0; i<response.getListArticles().size(); i++)
+                        {
+                            ListeArtcile.add(new ArticlePanier(response.getListArticles().get(i).getId(), response.getListArticles().get(i).getIntitule(), response.getListArticles().get(i).getPrixUnitaire(), response.getListArticles().get(i).getQuantite()));
+                        }
+
+                    }
+
+                }catch (IOException | ClassNotFoundException e){
+                    throw new RuntimeException(e);
+                }
+            } else {
+                lastClickTime = new Date();
+            }
+        }
+    }
+
+    @FXML
+    void PayerFacture(){
+        System.out.println("[PAYER_FACTURE] Click on Button");
+
+        RequetePayFacture requete = new RequetePayFacture(ListeFacture.get(FactureTable.getSelectionModel().getSelectedIndex()).getId(), CBFieeld.getText(), NameTextField.getText());
+
+        try {
+            oos.writeObject(requete);
+
+            ResponsePayFacture response = (ResponsePayFacture) ois.readObject();
+
+            if(response.isValide()){
+                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                alert.setTitle("Effectué");
+                alert.setHeaderText("La facture a bien été réglée");
+                alert.setContentText("Bonne journée");
+                alert.showAndWait();
+                ListeFacture.clear();
+            } else {
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("Attention");
+                alert.setHeaderText("La carte n'est pas valide");
+                alert.setContentText("Veuillez vérifier les données entrée");
+                alert.showAndWait();
+            }
+
+        } catch (IOException | ClassNotFoundException e) {
+            System.out.println("[PAYER_FACTURE] Erreur : " + e.getMessage());
+            throw new RuntimeException(e);
+        }
     }
 }

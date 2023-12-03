@@ -4,6 +4,8 @@ import javafx.beans.property.SimpleFloatProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 
+import java.io.Serializable;
+
 public class Facture {
     private transient SimpleIntegerProperty Id;
     private transient SimpleStringProperty date;
@@ -22,20 +24,19 @@ public class Facture {
         this.Payer=new SimpleIntegerProperty();
     }
 
-    public Facture(Integer Num, String date, Float Prix, Integer p){
+    public Facture(int Num, String date, float Prix, int p){
         this.Id =new SimpleIntegerProperty(Num);
         this.date= new SimpleStringProperty(date);
         this.PrixTotal=new SimpleFloatProperty(Prix);
         this.Payer=new SimpleIntegerProperty(p);
     }
 
-    public Integer getId(){return Id.get();}
-    public void setId(Integer Id){setId(Id);}
-
-    public String getDate(){return date.get();}
-    public void setDate(String date){setDate(date);}
-    public Float getPrixTotal(){return PrixTotal.get();}
-    public void setPrixTotal(Float prixTotal){setPrixTotal(prixTotal);}
-    public Integer getPayer(){return Payer.get();}
-    public void setPayer(Integer payer){setPayer(payer);}
+    public Integer getId(){return this.Id.get();}
+    public void setId(Integer Id){this.Id.set(Id);}
+    public String getDate(){return this.date.get();}
+    public void setDate(String date){this.date.set(date);}
+    public Float getPrixTotal(){return this.PrixTotal.get();}
+    public void setPrixTotal(Float prixTotal){this.PrixTotal.set(prixTotal);}
+    public Integer getPayer(){return this.Payer.get();}
+    public void setPayer(Integer payer){this.Payer.set(payer);}
 }

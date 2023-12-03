@@ -7,7 +7,7 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="511.0" prefWidth="752.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.trueserverpaiement.Client.EmpController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="539.0" prefWidth="752.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.trueserverpaiement.Client.EmpController">
    <children>
       <Label layoutX="18.0" layoutY="14.0" text="Login :" />
       <Label layoutX="251.0" layoutY="14.0" text="Mot de Passe :" />
@@ -17,11 +17,11 @@
       <Button fx:id="LogoutButton" layoutX="631.0" layoutY="10.0" mnemonicParsing="false" onAction="#on_LogoutClicked" prefHeight="25.0" prefWidth="103.0" text="Logout" />
       <Label layoutX="18.0" layoutY="62.0" text="Id :" />
       <TextField fx:id="IDField" layoutX="69.0" layoutY="58.0" prefHeight="25.0" prefWidth="165.0" />
-      <Button fx:id="PayerButton" layoutX="422.0" layoutY="467.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="304.0" text="Payer" />
+      <Button fx:id="PayerButton" layoutX="422.0" layoutY="500.0" mnemonicParsing="false" onAction="#PayerFacture" prefHeight="25.0" prefWidth="304.0" text="Payer" />
       <Label layoutX="14.0" layoutY="471.0" text="Numéro carte bancaire :" />
       <TextField fx:id="CBFieeld" layoutX="152.0" layoutY="467.0" prefHeight="25.0" prefWidth="244.0" />
       <Label layoutX="14.0" layoutY="93.0" text="Liste des commandes du client :" />
-      <TableView fx:id="FactureTable" layoutX="14.0" layoutY="122.0" prefHeight="329.0" prefWidth="338.0">
+      <TableView fx:id="FactureTable" layoutX="14.0" layoutY="122.0" onMouseClicked="#doubleClick" prefHeight="329.0" prefWidth="338.0">
          <columns>
             <TableColumn fx:id="IdFactureColumn" minWidth="-1.0" prefWidth="117.0" text="Numéro de Facture" />
             <TableColumn fx:id="DateColumn" maxWidth="119.0" minWidth="-1.0" prefWidth="102.0" text="Date" />
@@ -43,5 +43,7 @@
          </columnResizePolicy>
       </TableView>
       <Button fx:id="ConsultButton" layoutX="251.0" layoutY="58.0" mnemonicParsing="false" onAction="#on_ConsultClicked" prefHeight="25.0" prefWidth="103.0" text="Consulter" />
+      <Label layoutX="14.0" layoutY="504.0" prefHeight="18.0" prefWidth="127.0" text="Nom du Propriétaire :" />
+      <TextField fx:id="NameTextField" layoutX="152.0" layoutY="501.0" prefHeight="26.0" prefWidth="244.0" />
    </children>
 </AnchorPane>

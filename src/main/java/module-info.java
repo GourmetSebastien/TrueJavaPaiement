@@ -12,4 +12,6 @@ module com.example.trueserverpaiement {
     exports com.example.trueserverpaiement;
     opens com.example.trueserverpaiement to javafx.fxml;
 
+    opens com.example.trueserverpaiement.Client.Model to javafx.base;
+
 }

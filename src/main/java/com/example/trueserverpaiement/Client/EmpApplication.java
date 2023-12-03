@@ -17,7 +17,7 @@ public class EmpApplication extends Application {
         System.out.println("[START] start");
         FXMLLoader fxmlLoader = new FXMLLoader(LaunchEmp.class.getResource("/com/example/trueserverpaiement/emp-view.fxml"));
         System.out.println("[START] FXMLLoader()");
-        Scene scene = new Scene(fxmlLoader.load(), 752, 511);
+        Scene scene = new Scene(fxmlLoader.load(), 752, 539);
         System.out.println("[START] Scene(fxmlLoader.load()");
         stage.setTitle("Le Maraicher en Ligne");
         stage.setResizable(false);

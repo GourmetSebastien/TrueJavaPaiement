@@ -1,8 +1,6 @@
 package com.example.trueserverpaiement.Server.Infra;
 
-import com.example.trueserverpaiement.Client.Model.ArticlePanier;
-import com.example.trueserverpaiement.Client.Model.Facture;
-import com.example.trueserverpaiement.Client.Model.VerifCard;
+import com.example.trueserverpaiement.Client.Model.*;
 import com.example.trueserverpaiement.Lib.Interface.IRequete;
 import com.example.trueserverpaiement.Lib.Interface.IResponse;
 import com.example.trueserverpaiement.Lib.Requete.*;
@@ -61,17 +59,18 @@ public class VESPAP {
     }
 
     private static synchronized ResponseGetFacture TraiteGetFacture(RequeteGetFacture requete, ConnexionBD connexion) {
-        System.out.println("[VESPAP] Requete GetFacture reçue");
+        System.out.println("[TRAIT_GetFACTURE] Requete GetFacture reçue");
 
         int numClient = requete.getNumClient();
         try {
-            ResultSet resultSet = connexion.executeQuery("SELECT * FROM factures WHERE idClient = '" + numClient + "' AND paye = -1");
-            System.out.println("[VESAP] Requete envoyé à la base de donneés");
+            ResultSet resultSet = connexion.executeQuery("SELECT * FROM factures WHERE idClient = " + numClient + " AND paye = -1");
+            System.out.println("SELECT * FROM factures WHERE idClient = " + numClient + " AND paye = -1");
+            System.out.println("[TRAIT_GetFACTURE] Requete envoyé à la base de donneés");
             int nbRows = 0;
-            List<Facture> factures =new ArrayList<>();
+            List<FacSerializable> factures =new ArrayList<>();
             while (resultSet.next()){
-                System.out.println("[GetFACTURE] Resultat : " + resultSet);
-                Facture facture = new Facture();
+                System.out.println("[TRAIT_GetFACTURE] Resultat : " + resultSet.getString("jour"));
+                FacSerializable facture = new FacSerializable();
                 facture.setId(resultSet.getInt("idFacture"));
                 facture.setDate(resultSet.getString("jour"));
                 facture.setPrixTotal(resultSet.getFloat("montant"));
@@ -82,28 +81,29 @@ public class VESPAP {
             }
 
             if(nbRows < 1){
-                return new ResponseGetFacture(factures,true);
+                return new ResponseGetFacture(new ArrayList<>(),false);
             }
             else {
-                return new ResponseGetFacture(new ArrayList<>(), false);
+                System.out.println("[TRAIT_GetFACTURE] idFacture = " + factures.get(0).getId());
+                return new ResponseGetFacture(factures, true);
             }
 
         } catch (SQLException e) {
             e.printStackTrace(); //Affiche l'erreur
-            return new ResponseGetFacture(null,false);
+            return new ResponseGetFacture(new ArrayList<>(),false);
         }
     }
 
     private static IResponse TraitePayFacture(RequetePayFacture requete, ConnexionBD connexion) {
-        System.out.println("[VESPAP] Requete PayFacture reçue");
+        System.out.println("[TRAIT_PAIEFACTURE] Requete PayFacture reçue");
         if(VerifCard.estValide(requete.getNumCarte()))
         {
             try {
-                int rowUpdated = connexion.executeUpdate("UPDATE factures SET paye = 1 WHERE idFacture = '" + requete.getIdFacture() + "'");
+                int rowUpdated = connexion.executeUpdate("UPDATE factures SET paye = 1 WHERE idFacture = " + requete.getIdFacture() + ";");
                 if(rowUpdated >0){
-                    System.out.println("[VESPAP] MAj réussie");
+                    System.out.println("[TRAIT_PAIEFACTURE] MAj réussie");
                 }else{
-                    System.out.println("[VESPAP] Erreur MAJ");
+                    System.out.println("[TRAIT_PAIEFACTURE] Erreur MAJ");
                 }
                 return new ResponsePayFacture(true);
             }catch (SQLException e){
@@ -115,26 +115,32 @@ public class VESPAP {
 
     private static synchronized ResponseGetArticles TraiteGetArticles(RequeteGetArticles requete, ConnexionBD connexion) {
         try{
-            ResultSet resultSet = connexion.executeQuery("SELECT idArticle, intitule,prix, ventes.quantite \n" +
-                    "From articles\n" +
-                    "INNER JOIN artciles ON ventes.idArticle = articles.idArticle \n" +
-                    "WHERE ventes.idFacture = " +requete.getNumFacture() + ";");
+            System.out.println("[TRAIT_GETARTICLES] Numero de Facture : " + requete.getNumFacture());
+            ResultSet resultSet = connexion.executeQuery("select idArticle, intitule, prix, quantite from ventes inner join articles using (idArticle) where idFacture = " + requete.getNumFacture() + ";");
 
-            List<ArticlePanier> articles = new ArrayList<>();
+            int nbRows = 0;
+            List<ArtPanSerializable> articles = new ArrayList<>();
             while (resultSet.next()){
-                ArticlePanier article= new ArticlePanier();
+                ArtPanSerializable article= new ArtPanSerializable();
                 article.setId(resultSet.getInt("idArticle"));
                 article.setIntitule(resultSet.getString("intitule"));
                 article.setPrixUnitaire(resultSet.getFloat("prix"));
-                article.setQuantite(resultSet.getInt("ventes.quantite"));
+                article.setQuantite(resultSet.getInt("quantite"));
 
                 articles.add(article);
+                nbRows++;
             }
-            return new ResponseGetArticles(articles,true);
+
+            if(nbRows < 1){
+                return new ResponseGetArticles(new ArrayList<>(), false);
+            }else{
+                return new ResponseGetArticles(articles, true);
+            }
+
         }catch (SQLException e){
             e.printStackTrace();
             System.out.println("[VESPAP] Erreur BD, Article Inexistant");
-            return new ResponseGetArticles(null, false);
+            return new ResponseGetArticles(new ArrayList<>(), false);
         }
     }
 }
