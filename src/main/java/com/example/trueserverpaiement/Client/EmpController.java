@@ -18,6 +18,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.Date;
+import java.util.jar.Attributes;
 
 public class EmpController {
     //region Variable
@@ -259,6 +260,7 @@ public class EmpController {
         FactureTable.setDisable(false);
         ProductTable.setDisable(false);
         CBFieeld.setDisable(false);
+        NameTextField.setDisable(false);
     }
 
     private void DisableAll(){
@@ -269,6 +271,7 @@ public class EmpController {
         FactureTable.setDisable(true);
         ProductTable.setDisable(true);
         CBFieeld.setDisable(true);
+        NameTextField.setDisable(true);
     }
 
     @FXML
