@@ -88,27 +88,15 @@ public class EmpController {
 
         System.out.println("[INITIALIZE] setItem()");
 
+        this.employe = new Employe();
     }
 
     @FXML
     public void shutdown() {
         System.out.println("[Controller] SHUTDOWN Fenêtre fermée");
 
-        try {
-            if (employe.isLogged){
-                on_LogoutClicked();
-            }
-
-            if(oos != null){
-                oos.close();
-            }
-            if(ois != null){
-                ois.close();
-            }
-            csocket.close();
-            socketCreated = false;
-        }catch (IOException e){
-            throw new RuntimeException(e);
+        if (employe.isLogged){
+            on_LogoutClicked();
         }
         System.exit(0);
     }
@@ -120,7 +108,6 @@ public class EmpController {
         /******************************************************************/
         System.out.println("[INITIALIZE] Tentative de Connexion au Serveur");
         this.csocket = new Socket("localhost",50000);
-        this.employe = new Employe();
         System.out.println("[INITIALIZE] Socket connecté au Serveur");
         socketCreated = true;
 
@@ -181,10 +168,6 @@ public class EmpController {
     @FXML
     public void on_LogoutClicked(){
         System.out.println("[on_LogoutClicked] click on logout button");
-
-        /*if(employe == null){
-            employe = new Employe("nobody", "none");
-        }*/
 
         RequeteLogout req = new RequeteLogout(employe.getLogin());
 
