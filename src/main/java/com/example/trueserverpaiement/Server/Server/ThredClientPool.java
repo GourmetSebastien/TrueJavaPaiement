@@ -46,7 +46,7 @@ public class ThredClientPool extends Thread{
                 /************************************************/
                 // Seb = 192.168.79.128 -- Val = 192.168.15.134 //
                 /************************************************/
-                ConnexionBD connexionBD = new ConnexionBD(ConnexionBD.MYSQL,"192.168.15.134","PourStudent","Student","PassStudent1_");
+                ConnexionBD connexionBD = new ConnexionBD(ConnexionBD.MYSQL,"192.168.79.128","PourStudent","Student","PassStudent1_");
                 System.out.println("[THCLPO] Connexion acceptée ! ");
 
                 ObjectOutputStream oos=new ObjectOutputStream(clientSocket.getOutputStream());
