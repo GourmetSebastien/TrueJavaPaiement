@@ -20,6 +20,7 @@ import java.net.Socket;
 import java.util.Date;
 
 public class EmpController {
+    //region Variable
     @FXML
     private TextField LoginField;
     @FXML
@@ -67,6 +68,7 @@ public class EmpController {
 
     Facture temp;
     Date lastClickTime;
+    //endregion
 
 
     @FXML
@@ -156,6 +158,10 @@ public class EmpController {
                     LoginButton.setDisable(true);
                 }else{
                     System.out.println("[LOGIN_CLICKED] Connexion échouée");
+                    Alert alert = new Alert(Alert.AlertType.WARNING);
+                    alert.setTitle("Attention");
+                    alert.setHeaderText("Mot de passe ou login erroné");
+                    alert.showAndWait();
                 }
 
             }catch (ClassNotFoundException | IOException e){
@@ -208,32 +214,40 @@ public class EmpController {
                 ListeArtcile.clear();
             }
         }
+        if(IDField.getText().isEmpty()){
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Attention");
+            alert.setHeaderText("Pas d'id client introduit");
+            alert.setContentText("Veuillez introduire un id.");
+            alert.showAndWait();
+        }else{
+            System.out.println("[Controller] Envoie Requete GetFacture");
+            RequeteGetFacture req = new RequeteGetFacture(Integer.parseInt(IDField.getText()));
+            try {
+                oos.writeObject(req);
 
-        System.out.println("[Controller] Envoie Requete GetFacture");
-        RequeteGetFacture req = new RequeteGetFacture(Integer.parseInt(IDField.getText()));
-        try {
-            oos.writeObject(req);
+                ResponseGetFacture response = (ResponseGetFacture) ois.readObject();
+                if(!response.isFound()){
+                    Alert alert = new Alert(Alert.AlertType.WARNING);
+                    alert.setTitle("Attention");
+                    alert.setHeaderText("Pas de factures trouvée dans la base de données");
+                    alert.setContentText("Vérifier les données du client");
+                    alert.showAndWait();
+                } else {
+                    System.out.println("[CONTROLLER] Copy response in ListeFacture");
+                    System.out.println("[CONTROLLER] idFacture = " + response.getListFacture().get(0).getId());
+                    for(int i = 0; i<response.getListFacture().size(); i++)
+                    {
+                        ListeFacture.add(new Facture(response.getListFacture().get(i).getId(), response.getListFacture().get(i).getDate(), response.getListFacture().get(i).getPrixTotal(), response.getListFacture().get(i).getPayer()));
+                    }
 
-            ResponseGetFacture response = (ResponseGetFacture) ois.readObject();
-            if(!response.isFound()){
-                Alert alert = new Alert(Alert.AlertType.WARNING);
-                alert.setTitle("Attention");
-                alert.setHeaderText("Pas de factures trouvée dans la base de données");
-                alert.setContentText("Vérifier les données du client");
-                alert.showAndWait();
-            } else {
-                System.out.println("[CONTROLLER] Copy response in ListeFacture");
-                System.out.println("[CONTROLLER] idFacture = " + response.getListFacture().get(0).getId());
-                for(int i = 0; i<response.getListFacture().size(); i++)
-                {
-                    ListeFacture.add(new Facture(response.getListFacture().get(i).getId(), response.getListFacture().get(i).getDate(), response.getListFacture().get(i).getPrixTotal(), response.getListFacture().get(i).getPayer()));
                 }
 
+            }catch (IOException | ClassNotFoundException e){
+                throw new RuntimeException(e);
             }
-
-        }catch (IOException | ClassNotFoundException e){
-            throw new RuntimeException(e);
         }
+
     }
 
     private void EnableAll(){
