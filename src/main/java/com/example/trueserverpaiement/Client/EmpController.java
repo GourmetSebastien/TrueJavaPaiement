@@ -7,18 +7,15 @@ import com.example.trueserverpaiement.Lib.Requete.*;
 import com.example.trueserverpaiement.Lib.Response.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.input.MouseEvent;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.Date;
-import java.util.jar.Attributes;
 
 public class EmpController {
     //region Variable
@@ -65,7 +62,7 @@ public class EmpController {
     private  ObjectOutputStream oos;
     private  ObjectInputStream ois;
     private  Socket csocket;
-    private boolean socketCreated = false;
+
 
     Facture temp;
     Date lastClickTime;
@@ -78,13 +75,13 @@ public class EmpController {
         ListeFacture = FXCollections.observableArrayList();
         ListeArtcile = FXCollections.observableArrayList();
 
-        IdFactureColumn.setCellValueFactory(new PropertyValueFactory("Id"));
-        DateColumn.setCellValueFactory(new PropertyValueFactory("date"));
-        MontantColumn.setCellValueFactory(new PropertyValueFactory("PrixTotal"));
+        IdFactureColumn.setCellValueFactory(new PropertyValueFactory<>("Id"));
+        DateColumn.setCellValueFactory(new PropertyValueFactory<>("date"));
+        MontantColumn.setCellValueFactory(new PropertyValueFactory<>("PrixTotal"));
 
-        IntituleColumn.setCellValueFactory(new PropertyValueFactory("intitule"));
-        QuantiteColumn.setCellValueFactory(new PropertyValueFactory("quantite"));
-        PrixUniColumn.setCellValueFactory(new PropertyValueFactory("prixUnitaire"));
+        IntituleColumn.setCellValueFactory(new PropertyValueFactory<>("intitule"));
+        QuantiteColumn.setCellValueFactory(new PropertyValueFactory<>("quantite"));
+        PrixUniColumn.setCellValueFactory(new PropertyValueFactory<>("prixUnitaire"));
 
         FactureTable.setItems(ListeFacture);
         ProductTable.setItems(ListeArtcile);
@@ -108,18 +105,17 @@ public class EmpController {
     void on_LoginClicked() throws IOException {
         System.out.println("[LOGIN_CLICKED] click on login button");
 
-        /******************************************************************/
         System.out.println("[INITIALIZE] Tentative de Connexion au Serveur");
         this.csocket = new Socket("localhost",50000);
         System.out.println("[INITIALIZE] Socket connecté au Serveur");
-        socketCreated = true;
+
 
         oos = new ObjectOutputStream(csocket.getOutputStream());
         oos.flush();
         ois = new ObjectInputStream(csocket.getInputStream());
         System.out.println("[INITIALIZE] ObjectSteam succes");
         System.out.println("[INITIALIZE] Fin initialize");
-        /******************************************************************/
+
 
         if (LoginField.getText().isEmpty()) {
             // Les champs de login ou de mot de passe sont vides
@@ -190,7 +186,6 @@ public class EmpController {
                 LoginButton.setDisable(false);
                 employe.isLogged = false;
                 csocket.close();
-                socketCreated = false;
                 oos.close();
                 ois.close();
                 ListeArtcile.clear();
@@ -209,9 +204,9 @@ public class EmpController {
     public void on_ConsultClicked(){
         System.out.println("[Controller] click on Consult button");
 
-        if(ListeFacture.size() > 0){
+        if(!ListeFacture.isEmpty()){
             ListeFacture.clear();
-            if(ListeArtcile.size() > 0){
+            if(!ListeArtcile.isEmpty()){
                 ListeArtcile.clear();
             }
         }
@@ -275,19 +270,19 @@ public class EmpController {
     }
 
     @FXML
-    void doubleClick(MouseEvent event) {
+    void doubleClick() {
         Facture row = FactureTable.getSelectionModel().getSelectedItem();
         if (row == null) return;
         if(row != temp){
             temp = row;
             lastClickTime = new Date();
-        } else if(row == temp) {
+        } else {
             Date now = new Date();
             long diff = now.getTime() - lastClickTime.getTime();
             if (diff < 300){ //another click registered in 300 millis
                 System.out.println("[DOUBLE_CLICK] on row");
 
-                if(ListeArtcile.size() > 0){
+                if(!ListeArtcile.isEmpty()){
                     ListeArtcile.clear();
                 }
 
