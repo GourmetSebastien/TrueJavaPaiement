@@ -3,6 +3,7 @@ package com.example.trueserverpaiement.Server.Server;
 import com.example.trueserverpaiement.Lib.Interface.IRequete;
 import com.example.trueserverpaiement.Lib.Interface.IResponse;
 import com.example.trueserverpaiement.Lib.Requete.RequeteLogin;
+import com.example.trueserverpaiement.Lib.Response.ResponseLogin;
 import com.example.trueserverpaiement.Lib.Response.ResponseLogout;
 import com.example.trueserverpaiement.Server.Exception.FinConnexionException;
 import com.example.trueserverpaiement.Server.Infra.ConnexionBD;
@@ -68,6 +69,16 @@ public class ThredClientPool extends Thread{
                         IResponse response = VESPAP.TraitementRequete(requete,clientSocket,connexionBD);
                         oos.writeObject(response);
                         System.out.println("[THCLPO] ECRITURE de la reponse");
+
+                        if(response instanceof ResponseLogin){
+                            if(!((ResponseLogin) response).isValide()){
+                                onContinue = false;
+                                connexionBD.close();
+                                clientSocket.close();
+                                oos.close();
+                                ois.close();
+                            }
+                        }
                         if(response instanceof ResponseLogout){
                             onContinue = false;
                             connexionBD.close();
@@ -77,7 +88,7 @@ public class ThredClientPool extends Thread{
                         }
                         // Reste du code
                     } catch (ClassNotFoundException | EOFException e) {
-                        e.printStackTrace();
+                        System.out.println("[THCPLO] Erreur : " + e.getMessage());
                     }
 
 
